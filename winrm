@@ -1,0 +1,47 @@
+
+
+
+#installation in linux::
+apt install python-pip
+pip install pywinrm
+---------------------------------------------------
+installation in window:
+.net4
+powershell upgrade
+then:::
+firewall off
+in powershell:::
+winrm get winrm/config/service
+winrm set winrm/config/client/auth '@{Basic="true"}'
+winrm set winrm/config/service/auth '@{Basic="true"}'
+winrm set winrm/config/service '@{AllowUnencrypted="true"}'
+---------------------------------------------------
+create user ansible and join it to the administrator group
+---------------------------------------------------
+#inventory
+[win]
+192.168.1.190
+
+[win:vars]
+ansible_user=ansible
+ansible_password="*****"
+ansible_become_method=runas
+ansible_become_user=administrator
+ansible_winrm_port=5985
+ansible_connection=winrm
+ansible_winrm_transport=basic
+ansible_winrm_server_cert_validation=ignore
+
+---------------------------------------------------
+ansible win -m win_ping -i inventory.yaml
+----------------------------------------------------
+ansible-playbook pl1.yaml -i inventory.yaml
+----------------------------------------------------
+- name: template
+  hosts: win
+  tasks:
+    - name: create directory
+      win_file:
+        path: 'C:\vahid\'
+        state: directory
+
