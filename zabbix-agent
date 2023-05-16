@@ -1,0 +1,36 @@
+- hosts: zabbix
+  become: yes
+  become_user: root
+  vars_files:
+  - env_variables
+  tasks:
+    - name: copy zabbix-release_6.0
+      copy:
+        src: /home/ansible/ansible-codes/playbook/zabbix-release_6.0-1+ubuntu20.04_all.deb
+        dest: /home/ansible/zabbix
+    - name: run zabbix-release_6.0
+      apt:
+        deb: /home/ansible/zabbix/zabbix-release_6.0-1+ubuntu20.04_all.deb
+    - name: install zabbix-agent
+      shell:
+        apt install zabbix-agent
+    - name: replace Server ip
+      replace:
+        path: /etc/zabbix/zabbix_agentd.conf
+        regexp: '^Server=127.0.0.1$'
+        replace: "Server=8.8.8.8"
+    - name: replace ServerActive ip
+      replace:
+        path: /etc/zabbix/zabbix_agentd.conf
+        regexp: '^ServerActive=127.0.0.1$'
+        replace: "ServerActive=8.8.8.8"
+    - name: replace Hostname
+      replace:
+        path: /etc/zabbix/zabbix_agentd.conf
+        regexp: '^# Hostname=$'
+        replace: "Hostname={{ ansible_hostname }}"
+    - name: Starting and Enabling the required services
+      service:
+        name: zabbix-agent
+        state: restarted
+        enabled: yes
